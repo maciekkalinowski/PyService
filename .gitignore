@@ -1,3 +1,4 @@
-/env
-/_pycache__
-/app/_pycache__
+flask/env
+flask/_pycache__
+flask/app/_pycache__
+
