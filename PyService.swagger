@@ -1,0 +1,158 @@
+openapi: '3.0.2'
+info:
+  title: PyService
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+paths:
+  /entries/{entryId}:
+    get:
+      description: get entry by Id
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          schema: 
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/entryData'
+
+    post:
+      description: modify entry
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          schema: 
+            type: string 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/entryData'
+
+              
+      
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      description: delete entry
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          schema: 
+            type: string 
+      responses:
+        '200':
+          description: OK
+
+
+  /entries:
+    get:
+      description: get entries
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/entryData'
+
+    post:
+      description: create new entry
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          schema: 
+            type: string 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/entryData'
+      responses:
+        '201':
+          description: OK
+
+
+  /tags:
+    get:
+      description: get all tags
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/tag'
+                
+        
+    
+    post:
+      description: create new tag   
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tagName:
+                  type: string
+                  example : new tag name
+
+      responses:
+        '201':
+          description: OK
+
+
+
+
+
+components:
+  schemas:
+    entries:
+      type: array
+      items:
+        $ref: '#/components/schemas/entryData'
+
+    entryData:
+      type: object
+      properties:
+        date:
+          type: string
+          example: "2022-12-15"
+        author:
+          type: string
+          example: "Jan Kowalski"
+        value:
+          type: number
+          example: 124.26
+        comment:
+          type: string
+          example: "To byly niezle zakupy"
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/tag'
+          example: ["Biedronka", "Warzywniak", "Spozywcze"]
+
+    tag:
+      type: string
+      example: "Biedronka"
+

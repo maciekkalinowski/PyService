@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+    <style>
+    table, th, td {
+      border:1px solid black;
+    }
+    </style>
+    <head>
+      {% if title %}
+      <title>{{ title }} - PyService</title>
+      {% else %}
+      <title>Welcome to PyService</title>
+      {% endif %}
+    </head>
+    <body>
+        <div>PyService: <a href="/index">Home</a></div>
+        <div>Tags: <a href="/tags">Tags</a></div>
+        <div>Entries: <a href="/entries">Entries</a></div>
+        <hr>
+        {% block index%}{% endblock %}
+        {% block tags%}{% endblock %}
+        {% block entries%}{% endblock %}
+    </body>
+</html>
