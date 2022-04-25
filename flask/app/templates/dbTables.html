@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+
+
+{% block dbTables %}
+<h1>Lista wpisów</h1>
+
+<table>
+    <tr>
+        <td><b>ID</b></td>
+        <td><b>DATE</b></td>
+        <td><b>AUTHOR</b></td>
+        <td><b>VALUE</b></td>
+        <td><b>COMMENT</b></td>
+    </tr>
+    {% for entry in entriesTable %}
+    <tr>
+        <td>{{ entry[0] }}</td>
+        <td>{{ entry[1] }}</td>
+        <td>{{ entry[2] }}</td>
+        <td>{{ entry[3] }}</td>
+        <td>{{ entry[4] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<h1>Lista tagów</h1>
+
+<table>
+    <tr>
+        <td><b>ID</b></td>
+        <td><b>NAME</b></td>
+    </tr>
+    {% for tag in tagsTable %}
+    <tr>
+        <td>{{ tag[0] }}</td>
+        <td>{{ tag[1] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}

@@ -1,11 +1,20 @@
 <!doctype html>
 <html>
     <style>
-    table, th, td {
+      table, th, td {
       border:1px solid black;
-    }
-    </style>
+      }
+      body {
+        background-color: rgba(24, 157, 183, 0.371);
+      }
+      
+      h1 {
+        color: maroon;
+        margin-left: 40px;
+      }
+      </style>
     <head>
+      <link rel="stylesheet" href="stylesheet.css">
       {% if title %}
       <title>{{ title }} - PyService</title>
       {% else %}
@@ -13,12 +22,10 @@
       {% endif %}
     </head>
     <body>
-        <div>PyService: <a href="/index">Home</a></div>
-        <div>Tags: <a href="/tags">Tags</a></div>
-        <div>Entries: <a href="/entries">Entries</a></div>
+        <div>PyService: <a href="/PyService/v1/index">Home</a></div>
+        <div>View: <a href="/PyService/v1/view">View</a></div>
         <hr>
-        {% block index%}{% endblock %}
-        {% block tags%}{% endblock %}
-        {% block entries%}{% endblock %}
+        {% block index %}{% endblock %}
+        {% block dbTables %}{% endblock %}
     </body>
 </html>

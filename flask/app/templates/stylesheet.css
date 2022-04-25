@@ -1,0 +1,12 @@
+table, th, td {
+    border:1px solid black;
+    }
+    
+body {
+      background-color: linen;
+    }
+    
+h1 {
+      color: maroon;
+      margin-left: 40px;
+    }

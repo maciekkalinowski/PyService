@@ -1,16 +1,26 @@
 from asyncio.windows_events import NULL
+from contextlib import nullcontext
 #from binascii import rledecode_hqx
 #from contextlib import nullcontext
 from optparse import Values
 from os.path import exists
-from flask import request
-from flask import render_template
+from urllib import response
+from flask import jsonify, request
+from flask import render_template, redirect, flash
+from flask import Response
+from sqlalchemy import null
 from .PyDB import createPyDB
+from app.forms import entryForm, LoginForm
+from config import Config
+import requests, json, datetime
+
 
 from app import app
 import os
 import sqlite3
 
+apiBasePath = '/api/PyService/v1'
+basePath = '/PyService/v1'
 
 dataBaseFile = 'C:\\Flask\\PyService\\flask\\app\\PyDB.sqlite'
 #dataBaseFile = 'app\\PyDB.sqlite'
@@ -22,21 +32,27 @@ if not exists(dataBaseFile):
 else:
     print('Found a database: ' + dataBaseFile)
 
-
-#INDEX
-@app.route("/")
-@app.route("/index")
-def index():
-    user = {'username': 'Maciek'}
-    return render_template('index.html', title='Home', user=user)
-    #return f"Hello from Flask"
+### TST ##################################################
 #TEST
 @app.route("/test")
 def test():
-    return f"TEST TEST"
+    testResponse = 'TEST TEST'
+    return testResponse
+
+#TEST2
+@app.route("/test2")
+def test2():
+    r = requests.get('http://localhost:5000/'+apiBasePath+'/tags')
+    print(r.json())
+    #return 'fsdf'
+    return render_template('getTags.html', tagsTable=r.json())
+### TST ##################################################
+
+
+### API ##################################################
 
 #TAGS
-@app.route("/tags", methods=['GET', 'POST'])
+@app.route(apiBasePath + "/tags", methods=['GET', 'POST'])
 def tags():
     # Pobieranie listy tagow
     if request.method == 'GET':
@@ -50,9 +66,12 @@ def tags():
         
         conn.close()
 
-        print(tagsTable)
-
-        return render_template('getTags.html', tagsTable=tagsTable)
+        #print(tagsTable)
+        
+        apiResponse = jsonify(tagsTable)
+        #return Response(tagsTable, status=200, mimetype='application/json')
+        return apiResponse
+        #return render_template('getTags.html', tagsTable=tagsTable)
     
     
     # Dodanie nowego taga
@@ -67,11 +86,11 @@ def tags():
 
         conn.commit()
         conn.close()
-        return f'Dodano wpis do tabeli tags'
+        return Response('OK', status=201, mimetype='application/json')
 
 
 #ENTRIES
-@app.route("/entries", methods=['GET', 'POST'])
+@app.route(apiBasePath + "/entries", methods=['GET', 'POST'])
 def entries():
     # Pobieranie listy wpisow
     if request.method == 'GET':
@@ -84,11 +103,14 @@ def entries():
             entriesTable.append(row)
         
         conn.close()
-        print(entriesTable)
- 
-        return render_template('getEntries.html', entriesTable=entriesTable)
+        #print(entriesTable)
+        apiResponse = jsonify(entriesTable)
+        return apiResponse
+        #return render_template('getEntries.html', entriesTable=entriesTable)
+    
     # Dodanie nowego wpisu
     elif request.method == 'POST':
+        
         requestBody  = request.get_json()
         requestDate = requestBody['date']
         requestAuthor = requestBody['author']
@@ -104,29 +126,31 @@ def entries():
         lastEntryId = list(c.execute('SELECT ENTRY_ID FROM entries ORDER BY ENTRY_ID DESC LIMIT 1'))[0][0]
 
         # Dodanie wpisu do tabeli entryTags dla kazdego tagu we wpisie
-        for tag in requestTags:
-            c.execute('INSERT INTO entryTags VALUES (?, ?, ?)', (None, lastEntryId, tag ))
+        if len(requestTags) > 0:
+            for tag in requestTags:
+                c.execute('INSERT INTO entryTags VALUES (?, ?, ?)', (None, lastEntryId, tag ))
         
         
         conn.commit()
         conn.close()
         
-        return f'Dodano wpis do bazy'
+        return Response('OK', status=201, mimetype='application/json')
 
 
 
-@app.route("/entries/<entryId>", methods=['GET', 'POST'])
+@app.route(apiBasePath + "/entries/<entryId>", methods=['GET', 'POST'])
 def entry(entryId):
     # Pobranie informacji o konkretnym wpisie
     if request.method == 'GET':
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
         
-        entry = list(c.execute('SELECT * FROM entries WHERE ENTRY_ID = ?', (entryId)))
-        print(entry)
-        
+        entry = list(c.execute('SELECT * FROM entries WHERE ENTRY_ID = ?', (entryId)))        
         conn.close()
-        return f'Wywolano metode GET'
+        #print(entry)
+        apiResponse = jsonify(entry)
+        return apiResponse
+        
     # Edycja istniejacego wpisu
     elif request.method == 'POST':
         conn = sqlite3.connect(dataBaseFile)
@@ -142,4 +166,71 @@ def entry(entryId):
         
         conn.commit()
         conn.close()
-        return f'Wywolano metode POST /entries/{entryId}'
+        return Response(null, status=201, mimetype='application/json')
+
+
+
+### API ##################################################
+
+### WEB ##################################################
+#VIEW
+
+@app.route(basePath + "/view")
+def view():
+    tags = requests.get('http://localhost:5000'+apiBasePath+'/tags')
+    tagsJSON = tags.json()
+    #print(tagsJSON)
+
+    entries = requests.get('http://localhost:5000'+apiBasePath+'/entries')
+    entriesJSON = entries.json()
+    #print(entriesJSON)
+
+
+    return render_template('dbTables.html', tagsTable=tagsJSON, entriesTable=entriesJSON )
+
+#INDEX
+@app.route(basePath + "/")
+@app.route(basePath + "/index", methods=['GET', 'POST'])
+def index():
+    form = entryForm()
+    if form.validate_on_submit():
+        value = request.form['value']
+        print('Entered value: ' + str(value))
+
+
+
+        requestBody = {}
+        
+        requestBody['date'] = str(datetime.datetime.now())
+        requestBody['author'] = 'noOne'
+        requestBody['value'] = value
+        requestBody['comment'] = ''
+        requestBody["tags"] = []
+        
+        
+        r = requests.post('http://localhost:5000'+apiBasePath+'/entries', json=requestBody)
+        print(r.text)
+        return redirect(basePath +'/index')
+    else:
+        if len(form.errors) > 0:
+            print(form.errors)
+
+    return render_template('index.html', form=form )
+
+
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    print('request')
+    if form.validate_on_submit():
+        print('validated')
+        flash('Login requested for user {}, remember_me={}'.format(
+            form.username.data, form.remember_me.data))
+        return redirect('/login')
+    else:
+        print('notValidated')
+        print(form.errors)
+    return render_template('login.html', title='Sign In', form=form)
+### WEB ##################################################
