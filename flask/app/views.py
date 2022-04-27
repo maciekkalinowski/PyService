@@ -245,7 +245,8 @@ def index():
             requestBody["tagName"] = newTag
             print(requestBody)
             nt = requests.post('http://localhost:5000'+ apiBasePath +'/tags', json=requestBody)
-            print(nt.text)   
+            print(nt.text)
+            tags.append(newTag)   
 
         requestBody = {}
         
