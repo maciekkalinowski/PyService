@@ -14,7 +14,6 @@
       }
       </style>
     <head>
-      <link rel="stylesheet" href="stylesheet.css">
       {% if title %}
       <title>{{ title }} - PyService</title>
       {% else %}
@@ -27,5 +26,6 @@
         <hr>
         {% block index %}{% endblock %}
         {% block dbTables %}{% endblock %}
+        {% block anyBlock %}{% endblock %}
     </body>
 </html>

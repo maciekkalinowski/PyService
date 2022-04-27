@@ -4,6 +4,7 @@ from contextlib import nullcontext
 #from contextlib import nullcontext
 from optparse import Values
 from os.path import exists
+import re
 from urllib import response
 from flask import jsonify, request
 from flask import render_template, redirect, flash
@@ -33,19 +34,8 @@ else:
     print('Found a database: ' + dataBaseFile)
 
 ### TST ##################################################
-#TEST
-@app.route("/test")
-def test():
-    testResponse = 'TEST TEST'
-    return testResponse
 
-#TEST2
-@app.route("/test2")
-def test2():
-    r = requests.get('http://localhost:5000/'+apiBasePath+'/tags')
-    print(r.json())
-    #return 'fsdf'
-    return render_template('getTags.html', tagsTable=r.json())
+
 ### TST ##################################################
 
 
@@ -59,19 +49,24 @@ def tags():
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
         
-        tagsTable = []
-        for row in c.execute('SELECT * FROM tags'):
-            #print(row)
-            tagsTable.append(row)
-        
+        #tagsTable = []
+        #for row in c.execute('SELECT * FROM tags'):
+        #    #print(row)
+        #    tagsTable.append(row)
+        tagsTable = list(c.execute('SELECT * FROM tags'))
         conn.close()
+        
+        tags = []
+        for row in tagsTable:
+            tags.append(row[-1])
+        #print(tags)
+
 
         #print(tagsTable)
         
-        apiResponse = jsonify(tagsTable)
-        #return Response(tagsTable, status=200, mimetype='application/json')
+        apiResponse = jsonify(tags)
+
         return apiResponse
-        #return render_template('getTags.html', tagsTable=tagsTable)
     
     
     # Dodanie nowego taga
@@ -97,16 +92,23 @@ def entries():
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
         
-        entriesTable = []
-        for row in c.execute('SELECT * FROM entries'):
-            #print(row)
-            entriesTable.append(row)
-        
+        entriesTable =  list(c.execute('SELECT * FROM entries'))
         conn.close()
-        #print(entriesTable)
-        apiResponse = jsonify(entriesTable)
+
+        entries = []
+        for row in entriesTable:
+            entry = {}
+            entry["id"] = row[0]
+            entry["date"] = row[1]
+            entry["author"] = row[2]
+            entry["value"] = row[3]
+            entry["comment"] = row[4]
+            entries.append(entry)
+
+        
+
+        apiResponse = jsonify(entries)
         return apiResponse
-        #return render_template('getEntries.html', entriesTable=entriesTable)
     
     # Dodanie nowego wpisu
     elif request.method == 'POST':
@@ -144,12 +146,26 @@ def entry(entryId):
     if request.method == 'GET':
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
-        
-        entry = list(c.execute('SELECT * FROM entries WHERE ENTRY_ID = ?', (entryId)))        
+        entry = list(c.execute('SELECT ENTRY_ID, DATE, AUTHOR, VALUE, COMMENT FROM entries WHERE ENTRY_ID = ?', [entryId]))   
+        entryTags = list(c.execute('SELECT * FROM entryTags WHERE ENTRY_ID = ?', [entryId]))     
         conn.close()
-        #print(entry)
-        apiResponse = jsonify(entry)
+        
+        entryJ = {}
+        entryJ["id"] = entry[0][0]
+        entryJ["date"] = entry[0][1]
+        entryJ["author"] = entry[0][2]
+        entryJ["value"] = entry[0][3]
+        entryJ["comment"] = entry[0][4]
+        
+        tags = []
+        for tag in entryTags:
+            tags.append(tag[-1])
+        
+        entryJ["tags"] = tags
+
+        apiResponse = jsonify(entryJ)
         return apiResponse
+        #return "sfsdf"
         
     # Edycja istniejacego wpisu
     elif request.method == 'POST':
@@ -183,32 +199,64 @@ def view():
 
     entries = requests.get('http://localhost:5000'+apiBasePath+'/entries')
     entriesJSON = entries.json()
-    #print(entriesJSON)
+    print(entriesJSON)
 
 
     return render_template('dbTables.html', tagsTable=tagsJSON, entriesTable=entriesJSON )
+
+@app.route(basePath + "/view/entry/<int:entryId>")
+def viewEntry(entryId):
+    print(entryId)
+    entry = requests.get('http://localhost:5000'+apiBasePath+'/entries/' + str(entryId))
+    entryJSON = entry.json()
+    print(entryJSON)
+
+
+    return render_template('entry.html', entry=entryJSON )
+    
+
 
 #INDEX
 @app.route(basePath + "/")
 @app.route(basePath + "/index", methods=['GET', 'POST'])
 def index():
+    tagsList = requests.get('http://localhost:5000'+apiBasePath+'/tags').json()
+    tagsDict = []
+    for tag in tagsList:
+        tagsDict.append((tag,tag))
+
     form = entryForm()
+    #form.tags.choices = [('Biedronka', 'Biedronka'), ('Warzywniak', 'Warzywniak'), ('Castorama', 'Castorama')]
+    form.tags.choices = tagsDict
+    
     if form.validate_on_submit():
         value = request.form['value']
-        print('Entered value: ' + str(value))
-
-
+        author = request.form['author']
+        tags = []
+        for key in request.form.keys():
+            if 'tags' in key:
+                #print('JEST tag: ' + key)
+                tags.append(request.form[key])
+        
+        requestBody = {}
+        
+        newTag = request.form["newTag"]
+        if len(newTag) > 0:
+            requestBody["tagName"] = newTag
+            print(requestBody)
+            nt = requests.post('http://localhost:5000'+ apiBasePath +'/tags', json=requestBody)
+            print(nt.text)   
 
         requestBody = {}
         
         requestBody['date'] = str(datetime.datetime.now())
-        requestBody['author'] = 'noOne'
+        requestBody['author'] = author
         requestBody['value'] = value
-        requestBody['comment'] = ''
-        requestBody["tags"] = []
+        requestBody['comment'] = request.form['comment']
+        requestBody["tags"] = tags
         
         
-        r = requests.post('http://localhost:5000'+apiBasePath+'/entries', json=requestBody)
+        r = requests.post('http://localhost:5000'+ apiBasePath +'/entries', json=requestBody)
         print(r.text)
         return redirect(basePath +'/index')
     else:
