@@ -13,6 +13,13 @@ def createPyDB():
 		"TAG_NAME"	TEXT NOT NULL UNIQUE)
 		''')
 
+	# Utwórz tabelę users
+	c.execute('''
+	CREATE TABLE "users" (
+		"ID"	INTEGER PRIMARY KEY,
+		"USER_NAME"	TEXT NOT NULL UNIQUE)
+		''')
+
 	# Utwórz tabelę entries
 	c.execute('''
 	CREATE TABLE "entries" (

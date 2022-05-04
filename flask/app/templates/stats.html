@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+
+
+{% block stats %}
+<h1>Statystyki</h1>
+<form action="" method="post" novalidate>
+    {{ params.hidden_tag() }}
+
+    <h2>{{ params.authors.label }}</h2>
+
+    {% for author in params.authors %}
+    <tr>
+        <input type="checkbox" id="author" name="{{ author.id }}" value="{{ author.data }}">{{ author.label }}</input><br>
+    </tr>
+    {% endfor %}
+
+    <h2>{{ params.tags.label }}</h2>
+    {% for tag in params.tags %}
+    <tr>
+        <input type="checkbox" id="tag" name="{{ tag.id }}" value="{{ tag.data }}">{{ tag.label }}</input><br>
+    </tr>
+    {% endfor %}
+
+
+    <h2>{{ params.valueMin.label }}</h2>
+    <a>{{ params.valueMin }}</a>
+    <h2>{{ params.valueMax.label }}</h2>
+    <a>{{ params.valueMax }}</a>
+
+
+
+    <h2>{{ params.dateStart.label }}</h2>
+    <a>{{ params.dateStart }}</a>
+    <h2>{{ params.dateEnd.label }}</h2>
+    <a>{{ params.dateEnd }}</a>
+
+
+
+    <p>{{ params.submit() }}</p>
+
+
+</form>
+{% endblock %}

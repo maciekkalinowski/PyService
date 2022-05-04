@@ -13,13 +13,22 @@
         <p>
             
         </p>
-
+<!--
         <p>
             <input type="radio" id="Maciek" name="author" value="Maciek" checked>{{ form.author(size=32) }}</input>
             <label for="Maciek">Maciek</label><br>
             <input type="radio" id="Monika" name="author" value="Monika">{{ form.author(size=32) }}</input>
             <label for="Monika">Monika</label><br>
         </p>
+-->
+        <p>
+            {% for author in form.author %}
+            <tr>
+                <input type="radio" id="author" name="author" value="{{ author.data }}">{{ author.label }}</input><br>
+            </tr>
+            {% endfor %}
+        </p>
+
         <div>
             <h2>Tagi dla wpisu</h2>
 
