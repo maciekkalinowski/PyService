@@ -22,7 +22,6 @@ from app import app
 import os
 import sqlite3
 
-from app.cache import PyServiceCache
 
 apiBasePath = '/api/PyService/v1'
 basePath = '/PyService/v1'
@@ -39,67 +38,79 @@ else:
 
 
 ### CACHE ##################################################
+#
+class PyServiceCache():
 
-conn = sqlite3.connect(dataBaseFile)
-c = conn.cursor()
+    usersCache = []
+    tagsCache = []
 
-usersTable = list(c.execute('SELECT * FROM users'))
+    def getUsersCache(self):
+        return self.usersCache
 
-tagsTable = list(c.execute('SELECT * FROM tags'))
-
-
-conn.close()
-        
-usersCached = []
-for user in usersTable:
-   usersCached.append(user[-1])
-
-tagsCached = []
-for tag in tagsTable:
-   tagsCached.append(tag[-1])
-
-
-cached = PyServiceCache()
-
-
-'''
-usersCached = []
-tagsCached = []
-def refreshCache(cacheName):
-    usersCached = []
-    tagsCached = []
-    conn = sqlite3.connect(dataBaseFile)
-    c = conn.cursor()
-    if cacheName == 'users':
-        usersTable = list(c.execute('SELECT * FROM users'))
-        for user in usersTable:
-            usersCached.append(user[-1])
-        print('odswiezam cache usersCached')
-        print(usersCached)
-
-    elif cacheName == 'tags':
-        tagsTable = list(c.execute('SELECT * FROM tags'))
-        for tag in tagsTable:
-            tagsCached.append(tag[-1])
-        print('odswiezam cache tags')
-        print(tagsCached)
+    def getTagsCache(self):
+        return self.tagsCache
     
-    conn.close()
+    def refreshUsersCache(self):
+        self.usersCache = []
+        conn = sqlite3.connect(dataBaseFile)
+        c = conn.cursor()
+        usersTable = list(c.execute('SELECT * FROM users'))
+        conn.close()
+        
+        for user in usersTable:
+            self.usersCache.append(user[-1])
+        return self.usersCache
 
-refreshCache('users')
-refreshCache('tags')
-'''
+    def refreshTagsCache(self):
+        self.tagsCache = []
+        conn = sqlite3.connect(dataBaseFile)
+        c = conn.cursor()
+        tagsTable = list(c.execute('SELECT * FROM tags'))
+        conn.close()
+        
+        for tag in tagsTable:
+            self.tagsCache.append(tag[-1])
+        return self.tagsCache
 
+    def refreshCache(self):
+        self.refreshUsersCache()
+        self.refreshTagsCache()
+
+
+
+cache = PyServiceCache()
+cache.refreshCache()
+
+#
 ### CACHE ##################################################
 
 
+###  ##################################################
+#
+
+def tableToList(table):
+    count = len(table)
+    i = 0
+    list = ''
+
+    for i in range(count):
+        if i < len(table) -1 : 
+            list = list + table[i] + ','
+        else:
+            list = list + table[i]
+    return list        
+
+#
+### FUNCTIONS ##################################################
+
 ### TST ##################################################
-
-
+#
+#
 ### TST ##################################################
 
 
 ### API ##################################################
+#
 
 #TAGS
 @app.route(apiBasePath + "/tags", methods=['GET', 'POST'])
@@ -109,10 +120,7 @@ def tags():
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
         
-        #tagsTable = []
-        #for row in c.execute('SELECT * FROM tags'):
-        #    #print(row)
-        #    tagsTable.append(row)
+
         tagsTable = list(c.execute('SELECT * FROM tags'))
         conn.close()
         
@@ -142,7 +150,6 @@ def tags():
         conn.commit()
         conn.close()
 
-        #refreshCache('tags')
         return Response('OK', status=201, mimetype='application/json')
 
 
@@ -151,10 +158,25 @@ def tags():
 def entries():
     # Pobieranie listy wpisow
     if request.method == 'GET':
+        args = request.args.to_dict()
+        if 'authors' in args:
+            authors = args["authors"].split(',')
+        if 'tags' in args:
+            tags = args["tags"].split(',')
+        if 'valueMin' in args:
+            valueMin = args["valueMin"]
+        if 'valueMax' in args:
+            valueMax = args["valueMax"]
+        if 'dateStart' in args:
+            dateStart = args["dateStart"]
+        if 'dateEnd' in args:
+            dateEnd = args["dateEnd"]
+
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
         
         entriesTable =  list(c.execute('SELECT * FROM entries'))
+
         conn.close()
 
         entries = []
@@ -227,7 +249,6 @@ def entry(entryId):
 
         apiResponse = jsonify(entryJ)
         return apiResponse
-        #return "sfsdf"
         
     # Edycja istniejacego wpisu
     elif request.method == 'POST':
@@ -247,11 +268,11 @@ def entry(entryId):
         return Response(null, status=201, mimetype='application/json')
 
 
-
+#
 ### API ##################################################
 
 ### WEB ##################################################
-
+#
 
 #INDEX
 @app.route(basePath + "/")
@@ -259,20 +280,17 @@ def entry(entryId):
 def index():
 
     form = entryForm()
-    #tagsList = requests.get('http://localhost:5000'+apiBasePath+'/tags').json()
-    tagsDict = []
 
-    for tag in tagsCached:
+
+    tagsDict = []
+    for tag in cache.getTagsCache():
         tagsDict.append((tag,tag))
 
     authorsDict = []
-    for user in usersCached:
+    for user in cache.getUsersCache():
         authorsDict.append((user, user))
     
     form.author.choices = authorsDict
-
-    
-    #form.tags.choices = [('Biedronka', 'Biedronka'), ('Warzywniak', 'Warzywniak'), ('Castorama', 'Castorama')]
     form.tags.choices = tagsDict
     
     if form.validate_on_submit():
@@ -292,7 +310,8 @@ def index():
             print(requestBody)
             nt = requests.post('http://localhost:5000'+ apiBasePath +'/tags', json=requestBody)
             print(nt.text)
-            tags.append(newTag)   
+            tags.append(newTag)
+            cache.refreshTagsCache()   
 
         requestBody = {}
         
@@ -317,16 +336,11 @@ def index():
 
 @app.route(basePath + "/view")
 def view():
-    tags = requests.get('http://localhost:5000'+apiBasePath+'/tags')
-    tagsJSON = tags.json()
-    #print(tagsJSON)
-
     entries = requests.get('http://localhost:5000'+apiBasePath+'/entries')
     entriesJSON = entries.json()
-    print(entriesJSON)
+    #print(entriesJSON)
 
-
-    return render_template('dbTables.html', tagsTable=tagsJSON, entriesTable=entriesJSON )
+    return render_template('dbTables.html', tagsTable=cache.getTagsCache(), entriesTable=entriesJSON )
 
 @app.route(basePath + "/view/entry/<int:entryId>")
 def viewEntry(entryId):
@@ -340,23 +354,58 @@ def viewEntry(entryId):
 
 
 
-@app.route(basePath + "/stats")
+@app.route(basePath + "/stats", methods=['GET', 'POST'])
 def stats():
 
     params = statsForm()
 
     authorsDict = []
-    for user in usersCached:
+    for user in cache.getUsersCache():
         authorsDict.append((user, user))
-    
     params.authors.choices = authorsDict
 
-    #tagsList = requests.get('http://localhost:5000'+apiBasePath+'/tags').json()
     tagsDict = []
-    for tag in tagsCached:
+    for tag in cache.getTagsCache():
         tagsDict.append((tag,tag))
-    
     params.tags.choices = tagsDict
+
+
+    if params.validate_on_submit():
+        #print(request.form.to_dict())
+        authors = []
+        tags = []
+        for key in request.form.keys():
+            if 'authors' in key:
+                authors.append(request.form.to_dict()[key])
+            elif 'tags' in key:
+                tags.append(request.form.to_dict()[key])
+            
+
+
+        valueMin = request.form.to_dict()['valueMin']
+        valueMax = request.form.to_dict()['valueMax']
+        dateStart = request.form.to_dict()['dateStart']
+        dateEnd = request.form.to_dict()['dateEnd']
+
+
+        print('Parametry wyszukiwnaia: ' + str(authors) + ' ' + str(tags) + ' ' + str(valueMin) + ' ' + str(valueMax) + ' ' + str(dateStart) + ' ' + str(dateEnd))
+
+        requestArgs = '?'
+        if len(authors)>0:
+            requestArgs = requestArgs + 'authors=' + tableToList(authors)
+
+        if len(tags)>0:
+            requestArgs = requestArgs + '&tags=' + tableToList(tags)
+
+        requestArgs = requestArgs + '&valueMin=' + valueMin + '&valueMax=' + valueMax + '&dateStart=' + dateStart + '&dateEnd=' + dateEnd 
+
+        entries = requests.get('http://localhost:5000'+ apiBasePath + '/entries' + requestArgs )
+        entriesJSON = entries.json()
+
+        return redirect(basePath +'/stats')
+    else:
+        if len(params.errors) > 0:
+            print(params.errors)
 
     return render_template('stats.html', params=params)
 
@@ -377,4 +426,5 @@ def login():
         print('notValidated')
         print(form.errors)
     return render_template('login.html', title='Sign In', form=form)
+#
 ### WEB ##################################################

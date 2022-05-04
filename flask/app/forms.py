@@ -28,7 +28,7 @@ class LoginForm(FlaskForm):
 class statsForm(FlaskForm):
     authors = SelectMultipleField(u'Authors')
     valueMin = DecimalField('ValueMin' )
-    valueMax = DecimalField('ValueMax' )
+    valueMax = DecimalField('ValueMax', validators=None )
     dateStart = DateField('DateStart' )
     dateEnd = DateField('DateEnd' )
     tags = SelectMultipleField(u'Tags')
