@@ -10,8 +10,10 @@ from flask import jsonify, request
 from flask import render_template, redirect, flash
 from flask import Response
 from sqlalchemy import null
+
+
 from .PyDB import createPyDB
-from app.forms import entryForm, LoginForm
+from app.forms import entryForm, LoginForm, statsForm
 from config import Config
 import requests, json, datetime
 
@@ -19,6 +21,8 @@ import requests, json, datetime
 from app import app
 import os
 import sqlite3
+
+from app.cache import PyServiceCache
 
 apiBasePath = '/api/PyService/v1'
 basePath = '/PyService/v1'
@@ -32,6 +36,62 @@ if not exists(dataBaseFile):
     print('Done')
 else:
     print('Found a database: ' + dataBaseFile)
+
+
+### CACHE ##################################################
+
+conn = sqlite3.connect(dataBaseFile)
+c = conn.cursor()
+
+usersTable = list(c.execute('SELECT * FROM users'))
+
+tagsTable = list(c.execute('SELECT * FROM tags'))
+
+
+conn.close()
+        
+usersCached = []
+for user in usersTable:
+   usersCached.append(user[-1])
+
+tagsCached = []
+for tag in tagsTable:
+   tagsCached.append(tag[-1])
+
+
+cached = PyServiceCache()
+
+
+'''
+usersCached = []
+tagsCached = []
+def refreshCache(cacheName):
+    usersCached = []
+    tagsCached = []
+    conn = sqlite3.connect(dataBaseFile)
+    c = conn.cursor()
+    if cacheName == 'users':
+        usersTable = list(c.execute('SELECT * FROM users'))
+        for user in usersTable:
+            usersCached.append(user[-1])
+        print('odswiezam cache usersCached')
+        print(usersCached)
+
+    elif cacheName == 'tags':
+        tagsTable = list(c.execute('SELECT * FROM tags'))
+        for tag in tagsTable:
+            tagsCached.append(tag[-1])
+        print('odswiezam cache tags')
+        print(tagsCached)
+    
+    conn.close()
+
+refreshCache('users')
+refreshCache('tags')
+'''
+
+### CACHE ##################################################
+
 
 ### TST ##################################################
 
@@ -81,6 +141,8 @@ def tags():
 
         conn.commit()
         conn.close()
+
+        #refreshCache('tags')
         return Response('OK', status=201, mimetype='application/json')
 
 
@@ -189,43 +251,27 @@ def entry(entryId):
 ### API ##################################################
 
 ### WEB ##################################################
-#VIEW
-
-@app.route(basePath + "/view")
-def view():
-    tags = requests.get('http://localhost:5000'+apiBasePath+'/tags')
-    tagsJSON = tags.json()
-    #print(tagsJSON)
-
-    entries = requests.get('http://localhost:5000'+apiBasePath+'/entries')
-    entriesJSON = entries.json()
-    print(entriesJSON)
-
-
-    return render_template('dbTables.html', tagsTable=tagsJSON, entriesTable=entriesJSON )
-
-@app.route(basePath + "/view/entry/<int:entryId>")
-def viewEntry(entryId):
-    print(entryId)
-    entry = requests.get('http://localhost:5000'+apiBasePath+'/entries/' + str(entryId))
-    entryJSON = entry.json()
-    print(entryJSON)
-
-
-    return render_template('entry.html', entry=entryJSON )
-    
 
 
 #INDEX
 @app.route(basePath + "/")
 @app.route(basePath + "/index", methods=['GET', 'POST'])
 def index():
-    tagsList = requests.get('http://localhost:5000'+apiBasePath+'/tags').json()
-    tagsDict = []
-    for tag in tagsList:
-        tagsDict.append((tag,tag))
 
     form = entryForm()
+    #tagsList = requests.get('http://localhost:5000'+apiBasePath+'/tags').json()
+    tagsDict = []
+
+    for tag in tagsCached:
+        tagsDict.append((tag,tag))
+
+    authorsDict = []
+    for user in usersCached:
+        authorsDict.append((user, user))
+    
+    form.author.choices = authorsDict
+
+    
     #form.tags.choices = [('Biedronka', 'Biedronka'), ('Warzywniak', 'Warzywniak'), ('Castorama', 'Castorama')]
     form.tags.choices = tagsDict
     
@@ -267,7 +313,56 @@ def index():
     return render_template('index.html', form=form )
 
 
+#VIEW
 
+@app.route(basePath + "/view")
+def view():
+    tags = requests.get('http://localhost:5000'+apiBasePath+'/tags')
+    tagsJSON = tags.json()
+    #print(tagsJSON)
+
+    entries = requests.get('http://localhost:5000'+apiBasePath+'/entries')
+    entriesJSON = entries.json()
+    print(entriesJSON)
+
+
+    return render_template('dbTables.html', tagsTable=tagsJSON, entriesTable=entriesJSON )
+
+@app.route(basePath + "/view/entry/<int:entryId>")
+def viewEntry(entryId):
+    print(entryId)
+    entry = requests.get('http://localhost:5000'+apiBasePath+'/entries/' + str(entryId))
+    entryJSON = entry.json()
+    print(entryJSON)
+
+
+    return render_template('entry.html', entry=entryJSON )
+
+
+
+@app.route(basePath + "/stats")
+def stats():
+
+    params = statsForm()
+
+    authorsDict = []
+    for user in usersCached:
+        authorsDict.append((user, user))
+    
+    params.authors.choices = authorsDict
+
+    #tagsList = requests.get('http://localhost:5000'+apiBasePath+'/tags').json()
+    tagsDict = []
+    for tag in tagsCached:
+        tagsDict.append((tag,tag))
+    
+    params.tags.choices = tagsDict
+
+    return render_template('stats.html', params=params)
+
+
+
+#LOGIN
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
