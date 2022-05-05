@@ -62,6 +62,7 @@ class PyServiceCache():
         
         for user in usersTable:
             self.usersCache.append(user[-1])
+        print('Odswiezony cache usersCache')
         return self.usersCache
 
     def refreshTagsCache(self):
@@ -73,6 +74,7 @@ class PyServiceCache():
         
         for tag in tagsTable:
             self.tagsCache.append(tag[-1])
+        print('Odswiezony cache tagsCache')
         return self.tagsCache
 
     def refreshCache(self):
@@ -132,6 +134,7 @@ def tableToQuery(table):
 def tags():
     # Pobieranie listy tagow
     if request.method == 'GET':
+        print('Pobieram liste tagow z bazy')
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
         
@@ -142,7 +145,7 @@ def tags():
         tags = []
         for row in tagsTable:
             tags.append(row[-1])
-        #print(tags)
+        print(tags)
 
 
         #print(tagsTable)
@@ -164,7 +167,7 @@ def tags():
 
         conn.commit()
         conn.close()
-
+        print('Dodano nowy tag do bazy: ' + requestTag)
         return Response('OK', status=201, mimetype='application/json')
     
 
@@ -174,6 +177,7 @@ def tags():
 def entries():
     # Pobieranie listy wpisow
     if request.method == 'GET':
+        print('Pobieram liste wpisow z bazy')
         args = request.args.to_dict()
         authorsFlag = False
         tagsFlag = False
@@ -284,7 +288,7 @@ def entries():
         
         conn.commit()
         conn.close()
-        
+        print('Dodano nowy wpis')
         return Response('OK', status=201, mimetype='application/json')
 
 
@@ -372,9 +376,10 @@ def index():
         newTag = request.form["newTag"]
         if len(newTag) > 0:
             requestBody["tagName"] = newTag
-            print(requestBody)
+            #print(requestBody)
+            print('Dodaje nowy tag: ' + newTag)
             nt = requests.post('http://localhost:5000'+ apiBasePath +'/tags', json=requestBody)
-            print(nt.text)
+            #print(nt.text)
             tags.append(newTag)
             cache.refreshTagsCache()   
 
@@ -386,9 +391,10 @@ def index():
         requestBody['comment'] = request.form['comment']
         requestBody["tags"] = tags
         
-        
+        print('Dodaje nowy wpis: ')
+        print(requestBody)
         r = requests.post('http://localhost:5000'+ apiBasePath +'/entries', json=requestBody)
-        print(r.text)
+        #print(r.text)
         return redirect(basePath +'/index')
     else:
         if len(form.errors) > 0:
@@ -398,30 +404,6 @@ def index():
 
 
 #VIEW
-
-'''
-@app.route(basePath + "/view")
-def view():
-    entries = requests.get('http://localhost:5000'+apiBasePath+'/entries')
-    entriesJSON = entries.json()
-    #print(entriesJSON)
-
-    return render_template('dbTables.html', entriesTable=entriesJSON )
-'''
-
-
-@app.route(basePath + "/view/entry/<int:entryId>")
-def viewEntry(entryId):
-    print(entryId)
-    entry = requests.get('http://localhost:5000'+apiBasePath+'/entries/' + str(entryId))
-    entryJSON = entry.json()
-    print(entryJSON)
-
-
-    return render_template('entry.html', entry=entryJSON )
-
-
-
 @app.route(basePath + "/stats", methods=['GET', 'POST'])
 def stats():
 
@@ -439,6 +421,7 @@ def stats():
 
 
     if params.validate_on_submit():
+        print('Wyszukiwanie: ')
         #print(request.form.to_dict())
         authors = []
         tags = []
@@ -456,7 +439,7 @@ def stats():
         dateEnd = request.form.to_dict()['dateEnd']
 
 
-        #print('Parametry wyszukiwnaia: ' + str(authors) + ' ' + str(tags) + ' ' + str(valueMin) + ' ' + str(valueMax) + ' ' + str(dateStart) + ' ' + str(dateEnd))
+        print('Parametry wyszukiwnaia: AUTHORS: ' + str(authors) + ' TAGS: ' + str(tags) + ' VALUE_MIN: ' + str(valueMin) + ' VALUE_MAX: ' + str(valueMax) + ' DATE_START: ' + str(dateStart) + ' DATE_END ' + str(dateEnd))
 
         requestArgs = '?'
         if len(authors)>0:
@@ -472,7 +455,8 @@ def stats():
 
         #print('Zwrotka z API: ' + str(entries.json()))
         entriesJSON = entries.json()
-
+        print('Wyniki wyszukiwania: ')
+        print(entriesJSON)
         #return redirect(basePath +'/stats')
         return render_template('dbTables.html', entriesTable=entriesJSON )
     else:
@@ -488,9 +472,9 @@ def stats():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    print('request')
+    #print('request')
     if form.validate_on_submit():
-        print('validated')
+        #print('validated')
         flash('Login requested for user {}, remember_me={}'.format(
             form.username.data, form.remember_me.data))
         return redirect('/login')
