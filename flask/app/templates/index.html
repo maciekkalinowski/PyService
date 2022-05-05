@@ -25,7 +25,7 @@
             <h2>Autor</h2>
             {% for author in form.author %}
             <tr>
-                <input type="radio" id="author" name="author" value="{{ author.data }}">{{ author.label }}</input><br>
+                <input type="radio" id="author" name="author" value="{{ author.data }}">{{ author.label }}</input>
             </tr>
             {% endfor %}
         </p>
@@ -35,7 +35,7 @@
 
             {% for subfield in form.tags %}
             <tr>
-                <input type="checkbox" id="tag" name="{{ subfield.id }}" value="{{ subfield.data }}">{{ subfield.label }}</input><br>
+                <input type="checkbox" id="tag" name="{{ subfield.id }}" value="{{ subfield.data }}">{{ subfield.label }}</input>
             </tr>
             {% endfor %}
             

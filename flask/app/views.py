@@ -1,10 +1,12 @@
 from asyncio.windows_events import NULL
+from cgi import print_environ
 from contextlib import nullcontext
 #from binascii import rledecode_hqx
 #from contextlib import nullcontext
 from optparse import Values
 from os.path import exists
 import re
+from ssl import ALERT_DESCRIPTION_BAD_CERTIFICATE_HASH_VALUE
 from urllib import response
 from flask import jsonify, request
 from flask import render_template, redirect, flash
@@ -85,7 +87,7 @@ cache.refreshCache()
 ### CACHE ##################################################
 
 
-###  ##################################################
+### FUNCTIONS  ##################################################
 #
 
 def tableToList(table):
@@ -99,6 +101,18 @@ def tableToList(table):
         else:
             list = list + table[i]
     return list        
+
+def tableToQuery(table):
+    count = len(table)
+    i = 0
+    query = ''
+
+    for i in range(count):
+        if i < len(table) -1 : 
+            query = query + '\'' + table[i] +'\'' + ','
+        else:
+            query = query + '\'' + table[i] + '\''
+    return query  
 
 #
 ### FUNCTIONS ##################################################
@@ -151,6 +165,7 @@ def tags():
         conn.close()
 
         return Response('OK', status=201, mimetype='application/json')
+    
 
 
 #ENTRIES
@@ -159,27 +174,74 @@ def entries():
     # Pobieranie listy wpisow
     if request.method == 'GET':
         args = request.args.to_dict()
+        authorsFlag = False
+        tagsFlag = False
+        valueMinFlag = False
+        valueMaxFlag = False
+        dateStartFlag = False
+        dateEndFlag = False
         if 'authors' in args:
             authors = args["authors"].split(',')
+            authorsFlag = True
         if 'tags' in args:
             tags = args["tags"].split(',')
+            tagsFlag = True
         if 'valueMin' in args:
             valueMin = args["valueMin"]
+            valueMinFlag = True
         if 'valueMax' in args:
             valueMax = args["valueMax"]
+            valueMaxFlag = True
         if 'dateStart' in args:
             dateStart = args["dateStart"]
+            dateStartFlag = True
         if 'dateEnd' in args:
             dateEnd = args["dateEnd"]
+            dateEndFlag = True
 
+
+        
+
+        
+        sqlWHERE = ' WHERE E.DATE BETWEEN ' + '\'' +  dateStart + ' 00:00:00' + '\'' + ' AND ' +'\'' + dateEnd + ' 23:59:59' +'\'' \
+                     + ' AND E.VALUE BETWEEN ' + valueMin + ' AND ' + valueMax
+
+        if authorsFlag:
+            sqlWHERE = sqlWHERE + ' AND E.AUTHOR IN (' + tableToQuery(authors) + ')'
+        if tagsFlag:
+            sqlWHERE = sqlWHERE + ' AND ET.TAG_NAME IN (' + tableToQuery(tags) + ')'
+        
+
+
+        sql = 'SELECT E.ENTRY_ID, E.DATE, E.AUTHOR, E.VALUE, E.COMMENT FROM entries E JOIN entryTags ET ON E.ENTRY_ID = ET.ENTRY_ID' + sqlWHERE + ' GROUP BY E.ENTRY_ID'
+
+        #print(sql)
+        
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
         
-        entriesTable =  list(c.execute('SELECT * FROM entries'))
+        entriesTable =  list(c.execute(sql))
+        #print(entriesTable)
+        
+        entryTagsTable =[]
+        for row in entriesTable:
+            sql = 'SELECT TAG_NAME FROM entryTags WHERE ENTRY_ID =' + str(row[0])
+            entryTagsTable.append(list(c.execute(sql)))         
+
+
+        entryTagsTable2 = []
+
+        for row in entryTagsTable:
+            elems = []
+            for elem in row:               
+                elems.append(elem[0])
+            entryTagsTable2.append(elems)
+
 
         conn.close()
 
         entries = []
+        i = 0
         for row in entriesTable:
             entry = {}
             entry["id"] = row[0]
@@ -187,11 +249,13 @@ def entries():
             entry["author"] = row[2]
             entry["value"] = row[3]
             entry["comment"] = row[4]
+            entry["tags"] = entryTagsTable2[i] 
             entries.append(entry)
+            i = i + 1
 
         
-
         apiResponse = jsonify(entries)
+
         return apiResponse
     
     # Dodanie nowego wpisu
@@ -334,13 +398,16 @@ def index():
 
 #VIEW
 
+'''
 @app.route(basePath + "/view")
 def view():
     entries = requests.get('http://localhost:5000'+apiBasePath+'/entries')
     entriesJSON = entries.json()
     #print(entriesJSON)
 
-    return render_template('dbTables.html', tagsTable=cache.getTagsCache(), entriesTable=entriesJSON )
+    return render_template('dbTables.html', entriesTable=entriesJSON )
+'''
+
 
 @app.route(basePath + "/view/entry/<int:entryId>")
 def viewEntry(entryId):
@@ -388,7 +455,7 @@ def stats():
         dateEnd = request.form.to_dict()['dateEnd']
 
 
-        print('Parametry wyszukiwnaia: ' + str(authors) + ' ' + str(tags) + ' ' + str(valueMin) + ' ' + str(valueMax) + ' ' + str(dateStart) + ' ' + str(dateEnd))
+        #print('Parametry wyszukiwnaia: ' + str(authors) + ' ' + str(tags) + ' ' + str(valueMin) + ' ' + str(valueMax) + ' ' + str(dateStart) + ' ' + str(dateEnd))
 
         requestArgs = '?'
         if len(authors)>0:
@@ -400,9 +467,13 @@ def stats():
         requestArgs = requestArgs + '&valueMin=' + valueMin + '&valueMax=' + valueMax + '&dateStart=' + dateStart + '&dateEnd=' + dateEnd 
 
         entries = requests.get('http://localhost:5000'+ apiBasePath + '/entries' + requestArgs )
+
+
+        #print('Zwrotka z API: ' + str(entries.json()))
         entriesJSON = entries.json()
 
-        return redirect(basePath +'/stats')
+        #return redirect(basePath +'/stats')
+        return render_template('dbTables.html', entriesTable=entriesJSON )
     else:
         if len(params.errors) > 0:
             print(params.errors)

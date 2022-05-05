@@ -12,31 +12,25 @@
         <td><b>AUTHOR</b></td>
         <td><b>VALUE</b></td>
         <td><b>COMMENT</b></td>
+        <td><b>TAGS</b></td>
     </tr>
     {% for entry in entriesTable %}
     <tr>
-        <td><a href="/PyService/v1/view/entry/{{ entry['id'] }}">{{ entry["id"] }}</a></td>
+        <td>{{ entry["id"] }}</a></td>
         <td>{{ entry["date"] }}</td>
         <td>{{ entry["author"] }}</td>
         <td>{{ entry["value"] }}</td>
         <td>{{ entry["comment"] }}</td>
+        <td>
+        {% for tag in entry["tags"] %}
+            {{ tag }} <br>
+        {% endfor  %}
+        </td>
     </tr>
     {% endfor %}
 </table>
 
 
-<h1>Lista tagów</h1>
-
-<table>
-    <tr>
-        <td><b>TAG_NAME</b></td>
-    </tr>
-    {% for tag in tagsTable %}
-    <tr>
-        <td>{{ tag }}</td>
-    </tr>
-    {% endfor %}
-</table>
 
 
 {% endblock %}

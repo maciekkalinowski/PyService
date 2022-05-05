@@ -1,6 +1,9 @@
 from ast import List
+import datetime
+from email.policy import default
 from msilib.schema import CheckBox
 from tkinter import Label
+from typing import Optional
 from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, BooleanField, SubmitField, \
     PasswordField, Label, SelectMultipleField, DateField, DecimalRangeField, SelectField        
@@ -27,9 +30,9 @@ class LoginForm(FlaskForm):
 
 class statsForm(FlaskForm):
     authors = SelectMultipleField(u'Authors')
-    valueMin = DecimalField('ValueMin' )
-    valueMax = DecimalField('ValueMax', validators=None )
-    dateStart = DateField('DateStart' )
-    dateEnd = DateField('DateEnd' )
+    valueMin = DecimalField('ValueMin', default=0 )
+    valueMax = DecimalField('ValueMax', default=100000000 )
+    dateStart = DateField('DateStart', default=datetime.date(2000,1,1) )
+    dateEnd = DateField('DateEnd', default=datetime.date.today() )
     tags = SelectMultipleField(u'Tags')
     submit = SubmitField('Wyszukaj')

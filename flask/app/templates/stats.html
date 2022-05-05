@@ -11,14 +11,14 @@
 
     {% for author in params.authors %}
     <tr>
-        <input type="checkbox" id="author" name="{{ author.id }}" value="{{ author.data }}">{{ author.label }}</input><br>
+        <input type="checkbox" id="author" name="{{ author.id }}" value="{{ author.data }}">{{ author.label }}</input>
     </tr>
     {% endfor %}
 
     <h2>{{ params.tags.label }}</h2>
     {% for tag in params.tags %}
     <tr>
-        <input type="checkbox" id="tag" name="{{ tag.id }}" value="{{ tag.data }}">{{ tag.label }}</input><br>
+        <input type="checkbox" id="tag" name="{{ tag.id }}" value="{{ tag.data }}">{{ tag.label }}</input>
     </tr>
     {% endfor %}
 
