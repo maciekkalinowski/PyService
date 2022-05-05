@@ -44,5 +44,10 @@ def createPyDB():
 	# Wlacznie obslugi foreign keys
 	c.execute('PRAGMA foreign_keys = ON')
 
+
+
+	c.execute('INSERT INTO users (USER_NAME) VALUES (\'noOne\')')
+
+	conn.commit()
 	# Zamknięcie połączenia z bazą danych
 	conn.close()
