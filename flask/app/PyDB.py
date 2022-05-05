@@ -1,7 +1,8 @@
 import sqlite3
 
 def createPyDB():
-	conn = sqlite3.connect('C:\\Flask\\PyService\\flask\\app\\PyDB.sqlite')
+	#conn = sqlite3.connect('C:\\Flask\\PyService\\flask\\app\\PyDB.sqlite')
+	conn = sqlite3.connect('PyDB.sqlite')
 	c = conn.cursor()
 
 
