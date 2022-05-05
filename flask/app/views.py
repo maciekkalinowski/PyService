@@ -242,7 +242,7 @@ def entries():
                 elems.append(elem[0])
             entryTagsTable2.append(elems)
 
-
+        print('Pobrano list wpisow z bazy')
         conn.close()
 
         entries = []
