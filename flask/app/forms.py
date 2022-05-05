@@ -1,12 +1,10 @@
-from ast import List
+
 import datetime
 
 
-from tkinter import Label
-from typing import Optional
 from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, BooleanField, SubmitField, \
-    PasswordField, Label, SelectMultipleField, DateField, DecimalRangeField, SelectField        
+    PasswordField, SelectMultipleField, DateField, SelectField        
 from wtforms.validators import DataRequired
 
 

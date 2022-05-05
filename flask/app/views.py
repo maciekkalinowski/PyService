@@ -330,7 +330,7 @@ def entry(entryId):
         
         conn.commit()
         conn.close()
-        return Response(null, status=201, mimetype='application/json')
+        return Response(' ', status=201, mimetype='application/json')
 
 
 #
