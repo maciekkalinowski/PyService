@@ -29,7 +29,7 @@ apiBasePath = '/api/PyService/v1'
 basePath = '/PyService/v1'
 
 #dataBaseFile = 'C:\\Flask\\PyService\\flask\\app\\PyDB.sqlite'
-dataBaseFile = 'PyDB.sqlite'
+dataBaseFile = 'db/PyDB.sqlite'
 #dataBaseFile = 'app\\PyDB.sqlite'
 if not exists(dataBaseFile):
 #if not os.path.isfile('PyDB.sqlite'):
