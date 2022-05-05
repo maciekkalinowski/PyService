@@ -1,5 +1,5 @@
 flask/env
 flask/_pycache__
 flask/app/__pycache__
-flask/PyDB.sqlite
+flask/db/PyDB.sqlite
 
