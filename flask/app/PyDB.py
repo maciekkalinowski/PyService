@@ -47,6 +47,7 @@ def createPyDB():
 
 
 	c.execute('INSERT INTO users (USER_NAME) VALUES (\'noOne\')')
+	c.execute('INSERT INTO tags (TAG_NAME) VALUES (\'none\')')
 
 	conn.commit()
 	# Zamknięcie połączenia z bazą danych

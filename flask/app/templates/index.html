@@ -25,7 +25,7 @@
             <h2>Autor</h2>
             {% for author in form.author %}
             <tr>
-                <input type="radio" id="author" name="author" value="{{ author.data }}">{{ author.label }}</input>
+                <input type="radio" id="author" name="author" value="{{ author.data }}" checked>{{ author.label }}</input>
             </tr>
             {% endfor %}
         </p>

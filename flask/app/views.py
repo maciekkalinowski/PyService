@@ -220,7 +220,7 @@ def entries():
 
         sql = 'SELECT E.ENTRY_ID, E.DATE, E.AUTHOR, E.VALUE, E.COMMENT FROM entries E JOIN entryTags ET ON E.ENTRY_ID = ET.ENTRY_ID' + sqlWHERE + ' GROUP BY E.ENTRY_ID'
 
-        #print(sql)
+        print(sql)
         
         conn = sqlite3.connect(dataBaseFile)
         c = conn.cursor()
@@ -231,6 +231,7 @@ def entries():
         entryTagsTable =[]
         for row in entriesTable:
             sql = 'SELECT TAG_NAME FROM entryTags WHERE ENTRY_ID =' + str(row[0])
+            print(sql)
             entryTagsTable.append(list(c.execute(sql)))         
 
 
@@ -370,7 +371,10 @@ def index():
             if 'tags' in key:
                 #print('JEST tag: ' + key)
                 tags.append(request.form[key])
-        
+        print(tags)
+        if len(tags) == 0:
+            tags.append('none')
+        print(tags)
         requestBody = {}
         
         newTag = request.form["newTag"]
