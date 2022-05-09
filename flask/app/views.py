@@ -360,16 +360,18 @@ def index():
     for tag in cache.getTagsCache():
         tagsDict.append((tag,tag))
 
+    
     authorsDict = []
     for user in cache.getUsersCache():
         authorsDict.append((user, user))
     
-    form.author.choices = authorsDict
+    #form.author.choices = authorsDict
+    
     form.tags.choices = tagsDict
     
     if form.validate_on_submit():
         value = request.form['value']
-        author = request.form['author']
+        #author = request.form['author']
         tags = []
         for key in request.form.keys():
             if 'tags' in key:
@@ -394,7 +396,8 @@ def index():
         requestBody = {}
         
         requestBody['date'] = str(datetime.datetime.now())
-        requestBody['author'] = author
+        # zahardkodowany user noOne
+        requestBody['author'] = authorsDict[0][0]
         requestBody['value'] = value
         requestBody['comment'] = request.form['comment']
         requestBody["tags"] = tags

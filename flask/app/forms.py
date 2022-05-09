@@ -12,8 +12,7 @@ from wtforms.validators import DataRequired
 
 class entryForm(FlaskForm):
     value = DecimalField('Value', validators=[DataRequired()])
-    #author = Label('id','')
-    author = SelectField('Author')
+    #author = SelectField('Author')
     tags  = SelectMultipleField(u'Entry tags')
     newTag = StringField('newTag')
     comment = StringField('Comment')

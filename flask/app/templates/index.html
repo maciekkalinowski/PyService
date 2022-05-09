@@ -3,52 +3,41 @@
 
 
 {% block index %}
-    <h1>Dodaj nowy wpis</h1>
+
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        <p>
-            <h2>Ile kasiory?</h2>
-            {{ form.value(size=32) }}
-        </p>
-        <p>
-            
-        </p>
 
-        <p>
-            <h2>Autor</h2>
-            {% for author in form.author %}
-            <tr>
-                <input type="radio" id="author" name="author" value="{{ author.data }}" checked>{{ author.label }}</input>
-            </tr>
-            {% endfor %}
-        </p>
-
-        <div>
-            <h2>Tagi dla wpisu</h2>
-
-            {% for subfield in form.tags %}
-            <tr>
-                <input type="checkbox" id="tag" name="{{ subfield.id }}" value="{{ subfield.data }}">{{ subfield.label }}</input>
-            </tr>
-            {% endfor %}
-            
-
-       
-
-
-
-            <h3>Dodaj nowy tag</h3>
-            {{ form.newTag(size=32) }}
-
-        </div>
-
-        <p>
-            <h2>Komentarz</h2>
-            {{ form.comment }}
-        </p>
+        <div class="ramka">
         
-        <p>
-            <button>Dodaj wpis</button>
-        </p>
+            <div class="indexKwota">
+                <b style="font-size: 72px;">KWOTA</b><br>
+                {{ form.value(size=32) }}
+            </div>
+
+            <div class="indexTagi">
+                <!--<b style="font-size: 36px;">Tagi dla wpisu</b><br>-->
+
+                {% for subfield in form.tags %}
+                <tr>
+                    <input type="checkbox" class="tagCheckbox" id="tag" name="{{ subfield.id }}" value="{{ subfield.data }}"><a style="font-size: 32px;">{{ subfield.label }}</a></input>
+                </tr>
+                {% endfor %}
+            </div>
+
+            <div class="indexTagiKoment">
+                <b style="font-size: 36px;">DODAJ TAG</b>
+                {{ form.newTag }}
+                <br><br><br>
+                <b style="font-size: 36px;">KOMENTARZ</b>
+                {{ form.comment }}
+            </div>
+        
+            <div class="indexSubmit">
+                <button>Zapisz</button>
+            </div>
+
+    </div>
+
+
     </form>
 {% endblock %}

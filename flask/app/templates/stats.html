@@ -3,42 +3,70 @@
 
 
 {% block stats %}
-<h1>Statystyki</h1>
+
 <form action="" method="post" novalidate>
     {{ params.hidden_tag() }}
 
-    <h2>Autorzy wpisu</h2>
+    <div class="ramka">
+    
+        <div class="szukaj">
+            <div class="szukajOpis">
+                <b style="font-size: 32px;">FILTRUJ PO AUTORACH</b>
+            </div>    
 
-    {% for author in params.authors %}
-    <tr>
-        <input type="checkbox" id="author" name="{{ author.id }}" value="{{ author.data }}">{{ author.label }}</input>
-    </tr>
-    {% endfor %}
+            <div class="szukajDane">
+                    {% for author in params.authors %}
+                    <tr>
+                        <input type="checkbox" class="tagCheckbox" id="author" name="{{ author.id }}" value="{{ author.data }}"><a style="font-size: 32px;">{{ author.label }}</a></input>
+                    </tr>
+                    {% endfor %}
+            </div>
+        </div>
+    
+        <div class="szukaj">
+            <div class="szukajOpis">
+                <b style="font-size: 32px;">FILTRUJ PO TAGACH</b>
+            </div>
 
-    <h2>Tagi</h2>
-    {% for tag in params.tags %}
-    <tr>
-        <input type="checkbox" id="tag" name="{{ tag.id }}" value="{{ tag.data }}">{{ tag.label }}</input>
-    </tr>
-    {% endfor %}
+            <div class="szukajDane">
+                {% for tag in params.tags %}
+                <tr>
+                    <input type="checkbox" class="tagCheckbox" id="tag" name="{{ tag.id }}" value="{{ tag.data }}"><a style="font-size: 32px;">{{ tag.label }}</a></input>
+                </tr>
+                {% endfor %}
+            </div>
+        </div>
 
+        <div class="szukaj">
+            <div class="szukajOpis">
+                <b style="font-size: 32px;">FILTRUJ PO KWOCIE</b>
+            </div>
 
-    <h2>Filtruj po kwocie</h2>
+            <div class="szukajDane">
+                <a>{{ params.valueMin }}</a>
 
-    <a>{{ params.valueMin }}</a>
+                <a>{{ params.valueMax }}</a>
 
-    <a>{{ params.valueMax }}</a>
+            </div>
+        </div>
 
+        <div class="szukaj">
+            <div class="szukajOpis">
+                <b style="font-size: 32px;">FILTRUJ PO DACIE</b>
+            </div>
 
+            <div class="szukajDane">
+                <a>{{ params.dateStart }}</a>
 
-    <h2>Filtruj po dacie</h2>
-    <a>{{ params.dateStart }}</a>
+                <a>{{ params.dateEnd }}</a>
+            </div>
+        </div>
+    
+        <div class="indexSubmit">
+            <button>Szukaj</button>
+        </div>
 
-    <a>{{ params.dateEnd }}</a>
-
-    <p>
-        <button>Szukaj</button>
-    </p>
+    </div>
 
 
 
