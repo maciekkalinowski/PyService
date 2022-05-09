@@ -3,17 +3,18 @@
 
 
 {% block index %}
-    <h1>Dodaj nowy wpis</h1>
+
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        <p>
-            <h2>Ile kasiory?</h2>
-            {{ form.value(size=32) }}
-        </p>
-        <p>
-            
-        </p>
 
+        <div class="ramka">
+        
+            <div class="indexKwota">
+                <a>Kwota</a><br>
+                {{ form.value(size=32) }}
+            </div>
+
+<!--
         <p>
             <h2>Autor</h2>
             {% for author in form.author %}
@@ -22,33 +23,31 @@
             </tr>
             {% endfor %}
         </p>
-
-        <div>
-            <h2>Tagi dla wpisu</h2>
+-->
+        <div class="indexTagi">
+            <a>Tagi dla wpisu</a><br>
 
             {% for subfield in form.tags %}
             <tr>
                 <input type="checkbox" id="tag" name="{{ subfield.id }}" value="{{ subfield.data }}">{{ subfield.label }}</input>
             </tr>
             {% endfor %}
-            
+              
 
-       
-
-
-
-            <h3>Dodaj nowy tag</h3>
-            {{ form.newTag(size=32) }}
 
         </div>
 
-        <p>
-            <h2>Komentarz</h2>
+        <div class="indexTagiKoment">
+            <a>Dodaj nowy tag</a>
+            {{ form.newTag(size=32) }}
+            <br>
+            <a>Komentarz</a>
             {{ form.comment }}
-        </p>
+        </div>
         
-        <p>
-            <button>Dodaj wpis</button>
-        </p>
+        <div class="indexSubmit">
+            <button>Zapisz</button>
+        </div>
+    </div>
     </form>
 {% endblock %}

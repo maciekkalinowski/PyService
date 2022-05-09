@@ -8,7 +8,7 @@ from os.path import exists
 import re
 
 from urllib import response
-from flask import jsonify, request
+from flask import jsonify, request, url_for
 from flask import render_template, redirect, flash
 from flask import Response
 
@@ -122,6 +122,11 @@ def tableToQuery(table):
 
 ### TST ##################################################
 #
+@app.route(basePath + "/test")
+def test():
+    return render_template('test.html')
+    #return "fsdfsdfsdfsd"
+
 #
 ### TST ##################################################
 
@@ -348,7 +353,6 @@ def entry(entryId):
 @app.route(basePath + "/")
 @app.route(basePath + "/index", methods=['GET', 'POST'])
 def index():
-
     form = entryForm()
 
 

@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+  <!--
     <style>
       table, th, td {
       border:1px solid black;
@@ -13,7 +14,9 @@
         margin-left: 40px;
       }
       </style>
+  -->
     <head>
+      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styling.css') }}" />
       {% if title %}
       <title>{{ title }} - PyService</title>
       {% else %}
@@ -21,13 +24,14 @@
       {% endif %}
     </head>
     <body>
-        <div>PyService: <a href="/PyService/v1/index">Home</a></div>
+        PyService: <a href="/PyService/v1/index">Home</a>
         <!--<div>View: <a href="/PyService/v1/view">View</a></div>-->
-        <div>Stats: <a href="/PyService/v1/stats">Stats</a></div>
+        Stats: <a href="/PyService/v1/stats">Stats</a>
         <hr>
         {% block index %}{% endblock %}
         {% block dbTables %}{% endblock %}
         {% block anyBlock %}{% endblock %}
         {% block stats %}{% endblock %}
+        {% block test %}{% endblock %}
     </body>
 </html>

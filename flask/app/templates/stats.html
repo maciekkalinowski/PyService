@@ -7,7 +7,7 @@
 <form action="" method="post" novalidate>
     {{ params.hidden_tag() }}
 
-    <h2>{{ params.authors.label }}</h2>
+    <h2>Autorzy wpisu</h2>
 
     {% for author in params.authors %}
     <tr>
@@ -15,7 +15,7 @@
     </tr>
     {% endfor %}
 
-    <h2>{{ params.tags.label }}</h2>
+    <h2>Tagi</h2>
     {% for tag in params.tags %}
     <tr>
         <input type="checkbox" id="tag" name="{{ tag.id }}" value="{{ tag.data }}">{{ tag.label }}</input>
@@ -23,21 +23,24 @@
     {% endfor %}
 
 
-    <h2>{{ params.valueMin.label }}</h2>
+    <h2>Filtruj po kwocie</h2>
+
     <a>{{ params.valueMin }}</a>
-    <h2>{{ params.valueMax.label }}</h2>
+
     <a>{{ params.valueMax }}</a>
 
 
 
-    <h2>{{ params.dateStart.label }}</h2>
+    <h2>Filtruj po dacie</h2>
     <a>{{ params.dateStart }}</a>
-    <h2>{{ params.dateEnd.label }}</h2>
+
     <a>{{ params.dateEnd }}</a>
 
+    <p>
+        <button>Szukaj</button>
+    </p>
 
 
-    <p>{{ params.submit() }}</p>
 
 
 </form>

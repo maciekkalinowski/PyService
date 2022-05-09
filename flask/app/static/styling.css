@@ -1,0 +1,116 @@
+body {
+    background-color: rgba(13, 206, 190, 0.295);
+  }
+
+  * {
+    font-family: 'Courier New', Courier, monospace;
+
+  }
+
+
+  a {
+    color: rgb(207, 70, 28);
+  }
+
+  h1 {
+    color: rgb(207, 70, 28);
+  }
+  
+  h2 {
+    color: rgba(207, 70, 28, 0.904);
+  }
+
+  h3 {
+    color: rgba(207, 70, 28, 0.459);
+  }
+
+  button {
+    background-color: #229154; /* Green */
+    color: black;
+    font-size: 30px;
+    padding: 40px 60px;    
+    border-radius: 12px;
+    border: 5px solid #4d0ab9; /* Green */
+  }
+
+  button:hover {
+    background-color: #2ed333; /* Green */
+    color: rgb(51, 50, 50);
+  }
+  
+  button:active {
+    background-color: #3e8e41;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+  }
+  
+
+  table {
+    border: 1px solid;
+    border-collapse: collapse;
+    width: 80%;
+    text-align: center;
+  }
+
+  tr {
+    border: 1px solid;
+  }
+
+  div.ramka {
+    width: auto;
+    height: 800px;
+    border: 2px solid black;
+    padding: 20px;
+    margin: 30px;
+  }
+
+
+
+  div.indexKwota {
+    width: auto;
+    height: 100px;
+    border: 2px solid black;
+    padding: 20px;
+    margin: 20px;
+  }
+
+  div.indexTagi {
+    width: auto;
+    height: 200px;
+    border: 2px solid black;
+    padding: 20px;
+    margin: 20px;
+    
+  }
+
+  div.indexTagiKoment {
+    width: auto;
+    height: 100px;
+    border: 2px solid black;
+    padding: 20px;
+    margin: 20px;
+
+  }
+
+  div.indexSubmit {
+    width: auto;
+    height: 150px;
+    border: 2px solid black;
+    padding: 20px;
+    margin: 20px;
+  }
+  
+
+
+
+
+
+
+
+  div.obiekt1, div.obiekt2, div.obiekt3, div.obiekt4 {
+    width: auto;
+    height: 50px;
+    border: 2px solid black;
+    padding: 30px;
+    margin: 20px;
+  }

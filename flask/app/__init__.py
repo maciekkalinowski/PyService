@@ -9,3 +9,5 @@ app.config.from_object(Config)
 
 from app import views
 
+app.static_folder = 'static'
+
