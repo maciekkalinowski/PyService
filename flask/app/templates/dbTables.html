@@ -19,7 +19,7 @@
         <td>{{ entry["id"] }}</a></td>
         <td>{{ entry["date"] }}</td>
         <td>{{ entry["author"] }}</td>
-        <td>{{ entry["value"] }}</td>
+        <td>{{ entry["value"] }} zł</td>
         <td>{{ entry["comment"] }}</td>
         <td>
         {% for tag in entry["tags"] %}
@@ -28,7 +28,18 @@
         </td>
     </tr>
     {% endfor %}
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><b style="font-size: 24px;">{{ summary }} zł</b></td>
+        <td></td>
+        <td></td>
+    </tr>
 </table>
+
+
+
 
 
 

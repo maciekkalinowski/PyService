@@ -466,10 +466,15 @@ def stats():
 
         #print('Zwrotka z API: ' + str(entries.json()))
         entriesJSON = entries.json()
+        print(entriesJSON)
+        summary = 0.0
+        for entry in entriesJSON:
+            summary = summary + entry["value"]
+        
         print('Wyniki wyszukiwania: ')
         print(entriesJSON)
         #return redirect(basePath +'/stats')
-        return render_template('dbTables.html', entriesTable=entriesJSON )
+        return render_template('dbTables.html', entriesTable=entriesJSON, summary=summary )
     else:
         if len(params.errors) > 0:
             print(params.errors)
