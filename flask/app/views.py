@@ -24,13 +24,25 @@ from app import app
 import os
 import sqlite3
 
+### CONFIG ##################################################
+#
 
 apiBasePath = '/api/PyService/v1'
 basePath = '/PyService/v1'
 
-#dataBaseFile = 'C:\\Flask\\PyService\\flask\\app\\PyDB.sqlite'
+PORT = os.getenv("PORT") or '5000'
+PROTOCOL = os.getenv("PROTOCOL") or 'http'
+HOST = os.getenv("HOST") or 'localhost'
+API_URL = PROTOCOL + '://' + HOST + ':' + PORT + apiBasePath
+WEB_URL = PROTOCOL + '://' + HOST + ':' + PORT + basePath
+print('API: ' + API_URL)
+print('WEB: ' + WEB_URL)
+
+
 dataBaseFile = 'db/PyDB.sqlite'
-#dataBaseFile = 'app\\PyDB.sqlite'
+
+
+
 if not exists(dataBaseFile):
 #if not os.path.isfile('PyDB.sqlite'):
     print ("Can't find database PyDB, creating one")
@@ -39,6 +51,8 @@ if not exists(dataBaseFile):
 else:
     print('Found a database: ' + dataBaseFile)
 
+#
+### CONFIG ##################################################
 
 ### CACHE ##################################################
 #
@@ -388,7 +402,8 @@ def index():
             requestBody["tagName"] = newTag
             #print(requestBody)
             print('Dodaje nowy tag: ' + newTag)
-            nt = requests.post('http://localhost:5000'+ apiBasePath +'/tags', json=requestBody)
+            #nt = requests.post('http://localhost:'+ PORT + apiBasePath +'/tags', json=requestBody)
+            nt = requests.post(API_URL +'/tags', json=requestBody)
             #print(nt.text)
             tags.append(newTag)
             cache.refreshTagsCache()   
@@ -404,7 +419,8 @@ def index():
         
         print('Dodaje nowy wpis: ')
         print(requestBody)
-        r = requests.post('http://localhost:5000'+ apiBasePath +'/entries', json=requestBody)
+        #r = requests.post('http://localhost:'+ PORT + apiBasePath +'/entries', json=requestBody)
+        r = requests.post(API_URL +'/entries', json=requestBody)
         #print(r.text)
         return redirect(basePath +'/index')
     else:
@@ -461,7 +477,8 @@ def stats():
 
         requestArgs = requestArgs + '&valueMin=' + valueMin + '&valueMax=' + valueMax + '&dateStart=' + dateStart + '&dateEnd=' + dateEnd 
 
-        entries = requests.get('http://localhost:5000'+ apiBasePath + '/entries' + requestArgs )
+        #entries = requests.get('http://localhost:'+ PORT + apiBasePath + '/entries' + requestArgs )
+        entries = requests.get(API_URL + '/entries' + requestArgs )
 
 
         #print('Zwrotka z API: ' + str(entries.json()))
