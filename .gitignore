@@ -3,3 +3,5 @@ flask/_pycache__
 flask/app/__pycache__/*
 flask/db/PyDB.sqlite
 
+flask/__pycache__/*
+
