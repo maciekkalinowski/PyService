@@ -32,7 +32,23 @@ gcloud run deploy
 You have to set project on Cloud Run and configure docker CLI to connect to Google CLoud
 
 ## Usage
+### Docker container:
 Run app in browser on http://localhost:<host_port>/PyService/v1/index
 
+### Cloud Run:
+Run app in browser on https://<GCP_HOST>:8080/PyService/v1/index
 example:
 http://localhost:5000/PyService/v1/index
+
+### API
+/tags
+  - GET
+  - POST
+
+/entries (params: authors, tags, valueMin, valueMax, dateStart, dateEnd)
+  - GET
+  - POST
+
+/entries/<entry_id>
+  - GET
+  - POST
