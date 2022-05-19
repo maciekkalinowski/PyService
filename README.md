@@ -23,7 +23,10 @@ detached mode (`-d`) and remove container after stop (`--rm`):
 ```
 docker run -d --name PyService_v1 -e PORT=5000 -p 5000:5000 --rm pyservice:v1
 ```
-
+run (detached mode) container with mounted local folder (C:\DB) to persist sqlite database file (Windows):
+```
+docker run --name PyService -v /C/DB:/home/PyService/db -e PORT=5000 -p 5000:5000 -d pyservice:latest
+```
 ## Deploy to Google CLoud Run
 Run the command using `gcloud` tool from folder containing `Dockerfile`:
 ```
